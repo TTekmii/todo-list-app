@@ -1,0 +1,31 @@
+# Бинарные файлы
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Файлы сборки
+/bin/
+/pkg/
+/dist/
+
+# Кэш модулей
+/go.mod.cache
+
+# Тестовые файлы
+*.test
+*.out
+
+# IDE файлы
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Логи
+*.log
+
+# Файлы окружения
+.env
+.env.local
