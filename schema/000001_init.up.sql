@@ -1,4 +1,4 @@
-CREATE TABLE users
+CREATE TABLE IF NOT EXISTS users
 (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -6,14 +6,14 @@ CREATE TABLE users
     password_hash VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE todo_lists
+CREATE TABLE IF NOT EXISTS todo_lists
 (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
     description VARCHAR(255)
 );
 
-CREATE TABLE users_lists
+CREATE TABLE IF NOT EXISTS users_lists
 (
     id SERIAL PRIMARY KEY,
     user_id INT NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE users_lists
     FOREIGN KEY (list_id) REFERENCES todo_lists(id) ON DELETE CASCADE
 );
 
-CREATE TABLE todo_items
+CREATE TABLE IF NOT EXISTS todo_items
 (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255) NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE todo_items
     done boolean NOT NULL DEFAULT FALSE
 );
 
-CREATE TABLE lists_items
+CREATE TABLE IF NOT EXISTS lists_items
 (
     id SERIAL PRIMARY KEY,
     list_id INT NOT NULL,
