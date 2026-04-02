@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: todo-app-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-todo-db}
+    ports:
+      - "${POSTGRES_PORT:-5436}:5432"
+    volumes:
+      - todo_app_postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    networks:
+      - todo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  app:
+    build: .
+    container_name: todo-app
+    ports:
+      - "${APP_PORT:-8000}:8080"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${POSTGRES_USER:-postgres}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      DB_NAME: ${POSTGRES_DB:-todo-db}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - todo-network
+
+volumes:
+  todo_app_postgres_data:
+
+networks:
+  todo-network:
