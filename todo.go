@@ -21,7 +21,7 @@ type TodoItem struct {
 	Done        bool   `json:"done" db:"done"`
 }
 
-type ListsItem struct {
+type ListItem struct {
 	Id     int
 	ListId int
 	ItemId int
