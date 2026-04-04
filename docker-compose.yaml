@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
       POSTGRES_DB: ${POSTGRES_DB:-todo-db}
     ports:
-      - "${POSTGRES_PORT:-5436}:5432"
+      - "${POSTGRES_PORT:-5434}:5432"
     volumes:
       - todo_app_postgres_data:/var/lib/postgresql/data
       - ./migrations:/docker-entrypoint-initdb.d
