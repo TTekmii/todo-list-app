@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/TTekmii/todo-list-app/package/service"
+	"github.com/TTekmii/todo-list-app/internal/service"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"

@@ -13,9 +13,9 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/TTekmii/todo-list-app"
-	handler "github.com/TTekmii/todo-list-app/package/handlers"
-	"github.com/TTekmii/todo-list-app/package/repository"
-	"github.com/TTekmii/todo-list-app/package/service"
+	handler "github.com/TTekmii/todo-list-app/internal/handlers"
+	"github.com/TTekmii/todo-list-app/internal/repository"
+	"github.com/TTekmii/todo-list-app/internal/service"
 )
 
 // @title Todo App API
