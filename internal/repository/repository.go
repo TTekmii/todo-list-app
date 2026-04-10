@@ -1,29 +1,29 @@
 package repository
 
 import (
-	"github.com/TTekmii/todo-list-app"
+	"github.com/TTekmii/todo-list-app/internal/domain/models"
 	"github.com/jmoiron/sqlx"
 )
 
 type Authorization interface {
-	CreateUser(user todo.User) (int, error)
-	GetUser(username, password string) (todo.User, error)
+	CreateUser(user models.User) (int, error)
+	GetUser(username, password string) (models.User, error)
 }
 
 type TodoList interface {
-	Create(userId int, list todo.TodoList) (int, error)
-	GetAll(userId int) ([]todo.TodoList, error)
-	GetById(userId, listId int) (todo.TodoList, error)
+	Create(userId int, list models.TodoList) (int, error)
+	GetAll(userId int) ([]models.TodoList, error)
+	GetById(userId, listId int) (models.TodoList, error)
 	Delete(userId, listId int) error
-	Update(userId, listId int, input todo.UpdateListInput) error
+	Update(userId, listId int, input models.UpdateListInput) error
 }
 
 type TodoItem interface {
-	Create(listId int, item todo.TodoItem) (int, error)
-	GetAll(userId, listId int) ([]todo.TodoItem, error)
-	GetById(userId, itemId int) (todo.TodoItem, error)
+	Create(listId int, item models.TodoItem) (int, error)
+	GetAll(userId, listId int) ([]models.TodoItem, error)
+	GetById(userId, itemId int) (models.TodoItem, error)
 	Delete(userId, itemId int) error
-	Update(userId, itemId int, input todo.UpdateItemInput) error
+	Update(userId, itemId int, input models.UpdateItemInput) error
 }
 
 type Repository struct {

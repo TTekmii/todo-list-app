@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	todo "github.com/TTekmii/todo-list-app"
+	"github.com/TTekmii/todo-list-app/internal/domain/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,7 +27,7 @@ func (h *Handler) createList(c *gin.Context) {
 		return
 	}
 
-	var input todo.TodoList
+	var input models.TodoList
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
@@ -45,7 +45,7 @@ func (h *Handler) createList(c *gin.Context) {
 }
 
 type getAllListsResponse struct {
-	Data []todo.TodoList `json:"data"`
+	Data []models.TodoList `json:"data"`
 }
 
 // @Summary Get All Lists
@@ -136,7 +136,7 @@ func (h *Handler) updateList(c *gin.Context) {
 		return
 	}
 
-	var input todo.UpdateListInput
+	var input models.UpdateListInput
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/TTekmii/todo-list-app"
-	"github.com/TTekmii/todo-list-app/package/repository"
+	"github.com/TTekmii/todo-list-app/internal/domain/models"
+	"github.com/TTekmii/todo-list-app/internal/repository"
 	"github.com/golang-jwt/jwt"
 )
 
@@ -30,7 +30,7 @@ func NewAuthService(repo repository.Authorization) *AuthService {
 	return &AuthService{repo: repo}
 }
 
-func (s *AuthService) CreateUser(user todo.User) (int, error) {
+func (s *AuthService) CreateUser(user models.User) (int, error) {
 	user.Password = generatePasswordHash(user.Password)
 	return s.repo.CreateUser(user)
 }
