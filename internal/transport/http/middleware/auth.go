@@ -1,9 +1,9 @@
-package handler
+package middleware
 
 import (
 	"net/http"
 
-	"github.com/TTekmii/todo-list-app/internal/domain/models"
+	"github.com/TTekmii/todo-list-app/internal/domain/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,7 +20,7 @@ import (
 // @Failure default {object} errorResponse
 // @Router /auth/sign-up [post]
 func (h *Handler) signUp(c *gin.Context) {
-	var input models.User
+	var input model.User
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())

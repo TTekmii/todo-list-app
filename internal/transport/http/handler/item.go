@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/TTekmii/todo-list-app/internal/domain/models"
+	"github.com/TTekmii/todo-list-app/internal/domain/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,7 +34,7 @@ func (h *Handler) createItem(c *gin.Context) {
 		return
 	}
 
-	var input models.TodoItem
+	var input model.TodoItem
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
@@ -145,7 +145,7 @@ func (h *Handler) updateItem(c *gin.Context) {
 		return
 	}
 
-	var input models.UpdateItemInput
+	var input model.UpdateItemInput
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
