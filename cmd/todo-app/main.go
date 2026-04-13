@@ -12,10 +12,10 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 
-	"github.com/TTekmii/todo-list-app"
-	handler "github.com/TTekmii/todo-list-app/internal/handlers"
 	"github.com/TTekmii/todo-list-app/internal/repository"
 	"github.com/TTekmii/todo-list-app/internal/service"
+	"github.com/TTekmii/todo-list-app/internal/transport/http"
+	"github.com/TTekmii/todo-list-app/internal/transport/http/handler"
 )
 
 // @title Todo App API
@@ -56,7 +56,7 @@ func main() {
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 
-	srv := new(todo.Server)
+	srv := new(http.Server)
 	go func() {
 		if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
 			log.Fatalf("error occurred while running http server: %s", err.Error())
