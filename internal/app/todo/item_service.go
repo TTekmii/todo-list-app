@@ -1,17 +1,17 @@
-package service
+package todo
 
 import (
 	"github.com/TTekmii/todo-list-app/internal/domain/model"
-	"github.com/TTekmii/todo-list-app/internal/repository"
+	"github.com/TTekmii/todo-list-app/internal/domain/repo"
 )
 
 type TodoItemService struct {
-	repo     repository.TodoItem
-	listRepo repository.TodoList
+	itemRepo repo.TodoItem
+	listRepo repo.TodoList
 }
 
-func NewTodoItemService(repo repository.TodoItem, listRepo repository.TodoList) *TodoItemService {
-	return &TodoItemService{repo: repo, listRepo: listRepo}
+func NewTodoItemService(itemRepo repo.TodoItem, listRepo repo.TodoList) *TodoItemService {
+	return &TodoItemService{itemRepo: itemRepo, listRepo: listRepo}
 }
 
 func (s *TodoItemService) Create(userId, listId int, item model.TodoItem) (int, error) {
@@ -20,21 +20,21 @@ func (s *TodoItemService) Create(userId, listId int, item model.TodoItem) (int, 
 		return 0, err
 	}
 
-	return s.repo.Create(listId, item)
+	return s.itemRepo.Create(listId, item)
 }
 
 func (s *TodoItemService) GetAll(userId, listId int) ([]model.TodoItem, error) {
-	return s.repo.GetAll(userId, listId)
+	return s.itemRepo.GetAll(userId, listId)
 }
 
 func (s *TodoItemService) GetById(userId, itemId int) (model.TodoItem, error) {
-	return s.repo.GetById(userId, itemId)
+	return s.itemRepo.GetById(userId, itemId)
 }
 
 func (s *TodoItemService) Delete(userId, itemId int) error {
-	return s.repo.Delete(userId, itemId)
+	return s.itemRepo.Delete(userId, itemId)
 }
 
 func (s *TodoItemService) Update(userId, itemId int, input model.UpdateItemInput) error {
-	return s.repo.Update(userId, itemId, input)
+	return s.itemRepo.Update(userId, itemId, input)
 }

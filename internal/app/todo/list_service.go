@@ -1,38 +1,38 @@
-package service
+package todo
 
 import (
 	"github.com/TTekmii/todo-list-app/internal/domain/model"
-	"github.com/TTekmii/todo-list-app/internal/repository"
+	"github.com/TTekmii/todo-list-app/internal/domain/repo"
 )
 
 type TodoListService struct {
-	repo repository.TodoList
+	listRepo repo.TodoList
 }
 
-func NewTodoListService(repo repository.TodoList) *TodoListService {
-	return &TodoListService{repo: repo}
+func NewTodoListService(listRepo repo.TodoList) *TodoListService {
+	return &TodoListService{listRepo: listRepo}
 }
 
 func (s *TodoListService) Create(userId int, list model.TodoList) (int, error) {
-	return s.repo.Create(userId, list)
+	return s.listRepo.Create(userId, list)
 }
 
 func (s *TodoListService) GetAll(userId int) ([]model.TodoList, error) {
-	return s.repo.GetAll(userId)
+	return s.listRepo.GetAll(userId)
 }
 
 func (s *TodoListService) GetById(userId, listId int) (model.TodoList, error) {
-	return s.repo.GetById(userId, listId)
+	return s.listRepo.GetById(userId, listId)
 }
 
 func (s *TodoListService) Delete(userId, listId int) error {
-	return s.repo.Delete(userId, listId)
+	return s.listRepo.Delete(userId, listId)
 }
 
 func (s *TodoListService) Update(userId, listId int, input model.UpdateListInput) error {
-	if err := input.Validate(); err != nil {
-		return err
+	if !input.HasChanges() {
+		return model.ErrNoFieldsToUpdate
 	}
 
-	return s.repo.Update(userId, listId, input)
+	return s.listRepo.Update(userId, listId, input)
 }
