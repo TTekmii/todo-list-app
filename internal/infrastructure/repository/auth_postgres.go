@@ -4,8 +4,27 @@ import (
 	"fmt"
 
 	"github.com/TTekmii/todo-list-app/internal/domain/model"
+	"github.com/TTekmii/todo-list-app/internal/domain/repo"
 	"github.com/jmoiron/sqlx"
 )
+
+type dbUser struct {
+	ID           int    `db:"id"`
+	Name         string `db:"name"`
+	Username     string `db:"username"`
+	PasswordHash string `db:"password_hash"`
+}
+
+func toDomainUser(du dbUser) model.User {
+	return model.User{
+		ID:           du.ID,
+		Name:         du.Name,
+		Username:     du.Username,
+		PasswordHash: du.PasswordHash,
+	}
+}
+
+var _ repo.Authorization = (*AuthPostgres)(nil)
 
 type AuthPostgres struct {
 	db *sqlx.DB

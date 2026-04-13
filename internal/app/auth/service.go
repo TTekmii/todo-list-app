@@ -1,4 +1,4 @@
-package service
+package auth
 
 import (
 	"crypto/sha1"
@@ -7,9 +7,14 @@ import (
 	"time"
 
 	"github.com/TTekmii/todo-list-app/internal/domain/model"
-	"github.com/TTekmii/todo-list-app/internal/repository"
+	"github.com/TTekmii/todo-list-app/internal/domain/repo"
 	"github.com/golang-jwt/jwt"
 )
+
+// TODO: Replace sha1 with bcrypt
+// TODO: Move signingKey, salt, and tokenTTL to the config
+// TODO: Add context.Context to all methods
+// TODO: Correct the JWT-claims structure
 
 const (
 	salt       = "fhuysdf85139sdgjkfsd"
@@ -23,10 +28,10 @@ type tokenClaims struct {
 }
 
 type AuthService struct {
-	repo repository.Authorization
+	repo repo.Authorization
 }
 
-func NewAuthService(repo repository.Authorization) *AuthService {
+func NewAuthService(repo repo.Authorization) *AuthService {
 	return &AuthService{repo: repo}
 }
 
@@ -46,7 +51,7 @@ func (s *AuthService) GenerateToken(username, password string) (string, error) {
 			ExpiresAt: time.Now().Add(tokenTTL).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
-		user.Id,
+		user.ID,
 	})
 
 	return token.SignedString([]byte(signingKey))
@@ -79,3 +84,32 @@ func generatePasswordHash(password string) string {
 
 	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
 }
+
+// func (s *Service) Register(ctx context.Context, input dto.RegisterInput) (model.PublicUser, error) {
+//     // 1. Валидация (если не используете binding-теги)
+//     // 2. Хеширование пароля
+//     hash, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+//     if err != nil {
+//         return model.PublicUser{}, err
+//     }
+
+//     // 3. Создание доменной модели
+//     user := model.User{
+//         Name:         input.Name,
+//         Username:     input.Username,
+//         PasswordHash: string(hash),
+//     }
+
+//     // 4. Сохранение через репозиторий
+//     id, err := s.repo.CreateUser(ctx, user)
+//     if err != nil {
+//         return model.PublicUser{}, err
+//     }
+
+//     // 5. Возврат публичной версии
+//     return model.PublicUser{
+//         ID:       id,
+//         Name:     user.Name,
+//         Username: user.Username,
+//     }, nil
+// }
