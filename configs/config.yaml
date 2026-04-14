@@ -6,3 +6,11 @@ db:
   port: 5434
   dbname: "todo-db"
   sslmode: "disable"
+
+logger:
+  level: debug
+  format: pretty
+
+# logger:
+#   level: warn
+#   format: json
