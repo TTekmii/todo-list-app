@@ -24,7 +24,9 @@ func NewTodoListService(listRepo repo.TodoList, logger *slog.Logger) *TodoListSe
 
 func (s *TodoListService) Create(ctx context.Context, userID int, list model.TodoList) (int, error) {
 	if list.Title == "" {
-		s.logger.Warn("validation failed: empty title", slog.Int("user_id", userID))
+		s.logger.Warn("validation failed: empty title",
+			slog.Int("user_id", userID),
+		)
 		return 0, fmt.Errorf("title is required: %w", ErrInvalidInput)
 	}
 
@@ -32,11 +34,16 @@ func (s *TodoListService) Create(ctx context.Context, userID int, list model.Tod
 
 	listID, err := s.listRepo.Create(ctx, userID, list)
 	if err != nil {
-		s.logger.Error("failed to create list", slog.Int("user_id", userID), sl.Err(err))
+		s.logger.Error("failed to create list",
+			slog.Int("user_id", userID),
+			sl.Err(err),
+		)
 		return 0, fmt.Errorf("failed to create list: %w", err)
 	}
 
-	s.logger.Info("list created", slog.Int("list_id", listID))
+	s.logger.Info("list created",
+		slog.Int("list_id", listID),
+	)
 	return listID, nil
 }
 
@@ -63,11 +70,16 @@ func (s *TodoListService) Delete(ctx context.Context, userID, listID int) error 
 
 	err := s.listRepo.Delete(ctx, userID, listID)
 	if err != nil {
-		s.logger.Error("failed to delete list", slog.Int("list_id", listID), slog.String("error", err.Error()))
+		s.logger.Error("failed to delete list",
+			slog.Int("list_id", listID),
+			slog.String("error", err.Error()),
+		)
 		return fmt.Errorf("failed to delete list: %d: %w", listID, err)
 	}
 
-	s.logger.Info("list deleted", slog.Int("list_id", listID))
+	s.logger.Info("list deleted",
+		slog.Int("list_id", listID),
+	)
 	return nil
 }
 
@@ -80,7 +92,10 @@ func (s *TodoListService) Update(ctx context.Context, userID, listID int, input 
 		return fmt.Errorf("title cannot be empty: %w", ErrInvalidInput)
 	}
 
-	s.logger.Debug("updating list", slog.Int("list_id", listID))
+	s.logger.Debug("updating list",
+		slog.Int("user_id", userID),
+		slog.Int("list_id", listID),
+	)
 
 	err := s.listRepo.Update(ctx, userID, listID, input)
 	if err != nil {
