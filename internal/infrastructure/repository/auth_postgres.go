@@ -1,12 +1,17 @@
 package repository
 
 import (
+	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 
 	"github.com/TTekmii/todo-list-app/internal/domain/model"
 	"github.com/TTekmii/todo-list-app/internal/domain/repo"
 	"github.com/jmoiron/sqlx"
 )
+
+var _ repo.Authorization = (*AuthPostgres)(nil)
 
 type dbUser struct {
 	ID           int    `db:"id"`
@@ -24,7 +29,13 @@ func toDomainUser(du dbUser) model.User {
 	}
 }
 
-var _ repo.Authorization = (*AuthPostgres)(nil)
+func fromDomainUser(u model.User) dbUser {
+	return dbUser{
+		Name:         u.Name,
+		Username:     u.Username,
+		PasswordHash: u.PasswordHash,
+	}
+}
 
 type AuthPostgres struct {
 	db *sqlx.DB
@@ -34,11 +45,17 @@ func NewAuthPostgres(db *sqlx.DB) *AuthPostgres {
 	return &AuthPostgres{db: db}
 }
 
-func (r *AuthPostgres) CreateUser(user model.User) (int, error) {
-	var id int
-	query := fmt.Sprintf("INSERT INTO %s (name, username, password_hash) values ($1, $2, $3) RETURNING id", usersTable)
+func (r *AuthPostgres) CreateUser(ctx context.Context, user model.User) (int, error) {
+	dbUser := fromDomainUser(user)
 
-	row := r.db.QueryRow(query, user.Name, user.Username, user.Password)
+	var id int
+
+	query := fmt.Sprintf(
+		"INSERT INTO %s (name, username, password_hash) values ($1, $2, $3) RETURNING id",
+		usersTable,
+	)
+
+	row := r.db.QueryRowContext(ctx, query, dbUser.Name, dbUser.Username, dbUser.PasswordHash)
 	if err := row.Scan(&id); err != nil {
 		return 0, fmt.Errorf("failed to scan user id: %w", err)
 	}
@@ -46,10 +63,20 @@ func (r *AuthPostgres) CreateUser(user model.User) (int, error) {
 	return id, nil
 }
 
-func (r *AuthPostgres) GetUser(username, password string) (model.User, error) {
-	var user model.User
-	query := fmt.Sprintf("SELECT id FROM %s WHERE username=$1 AND password_hash=$2", usersTable)
-	err := r.db.Get(&user, query, username, password)
+func (r *AuthPostgres) GetUserByUsername(ctx context.Context, username string) (model.User, error) {
+	var du dbUser
 
-	return user, err
+	query := fmt.Sprintf(
+		"SELECT id, name, username, password_hash FROM %s WHERE username=$1",
+		usersTable,
+	)
+
+	if err := r.db.GetContext(ctx, &du, query, username); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return model.User{}, fmt.Errorf("user not found: %w", err)
+		}
+		return model.User{}, fmt.Errorf("failed to fetch user: %w", err)
+	}
+
+	return toDomainUser(du), nil
 }
