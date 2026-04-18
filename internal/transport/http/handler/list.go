@@ -4,23 +4,23 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/TTekmii/todo-list-app/internal/domain/model"
+	"github.com/TTekmii/todo-list-app/internal/transport/http/dto"
 	"github.com/gin-gonic/gin"
 )
 
 func (h *Handler) createList(c *gin.Context) {
-	userId, err := getUserId(c)
+	userID, err := getUserId(c)
 	if err != nil {
 		return
 	}
 
-	var input model.TodoList
-	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+	var req dto.CreateListRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
-	id, err := h.services.TodoList.Create(userId, input)
+	id, err := h.services.TodoList.Create(c.Request.Context(), userID, req.ToDomain())
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -31,29 +31,30 @@ func (h *Handler) createList(c *gin.Context) {
 	})
 }
 
-type getAllListsResponse struct {
-	Data []model.TodoList `json:"data"`
-}
-
 func (h *Handler) getAllLists(c *gin.Context) {
-	userId, err := getUserId(c)
+	userID, err := getUserId(c)
 	if err != nil {
 		return
 	}
 
-	lists, err := h.services.TodoList.GetAll(userId)
+	lists, err := h.services.TodoList.GetAll(c.Request.Context(), userID)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, getAllListsResponse{
-		Data: lists,
+	var response []dto.ListResponse
+	for _, list := range lists {
+		response = append(response, dto.ListFromDomain(list))
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": response,
 	})
 }
 
 func (h *Handler) getListById(c *gin.Context) {
-	userId, err := getUserId(c)
+	userID, err := getUserId(c)
 	if err != nil {
 		return
 	}
@@ -64,17 +65,17 @@ func (h *Handler) getListById(c *gin.Context) {
 		return
 	}
 
-	list, err := h.services.TodoList.GetById(userId, id)
+	list, err := h.services.TodoList.GetById(c.Request.Context(), userID, id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, list)
+	c.JSON(http.StatusOK, dto.ListFromDomain(list))
 }
 
 func (h *Handler) updateList(c *gin.Context) {
-	userId, err := getUserId(c)
+	userID, err := getUserId(c)
 	if err != nil {
 		return
 	}
@@ -85,13 +86,13 @@ func (h *Handler) updateList(c *gin.Context) {
 		return
 	}
 
-	var input model.UpdateListInput
-	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, err.Error())
+	var req dto.UpdateListRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid request body")
 		return
 	}
 
-	if err := h.services.TodoList.Update(userId, id, input); err != nil {
+	if err := h.services.TodoList.Update(c.Request.Context(), userID, id, req.ToDomain()); err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -100,7 +101,7 @@ func (h *Handler) updateList(c *gin.Context) {
 }
 
 func (h *Handler) deleteList(c *gin.Context) {
-	userId, err := getUserId(c)
+	userID, err := getUserId(c)
 	if err != nil {
 		return
 	}
@@ -111,7 +112,7 @@ func (h *Handler) deleteList(c *gin.Context) {
 		return
 	}
 
-	err = h.services.TodoList.Delete(userId, id)
+	err = h.services.TodoList.Delete(c.Request.Context(), userID, id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
