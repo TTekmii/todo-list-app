@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/TTekmii/todo-list-app/internal/service"
+	"github.com/TTekmii/todo-list-app/internal/app/auth"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -11,10 +11,10 @@ import (
 )
 
 type Handler struct {
-	services *service.Service
+	services *auth.Service
 }
 
-func NewHandler(services *service.Service) *Handler {
+func NewHandler(services *auth.Service) *Handler {
 	return &Handler{services: services}
 }
 
