@@ -1,30 +1,29 @@
 package handler
 
 import (
-	"github.com/TTekmii/todo-list-app/internal/app/auth"
+	"log/slog"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
+	"github.com/TTekmii/todo-list-app/internal/transport/http-server/middleware"
+
 	_ "github.com/TTekmii/todo-list-app/docs"
 )
 
-type Handler struct {
-	services *auth.Service
-}
-
-func NewHandler(services *auth.Service) *Handler {
-	return &Handler{services: services}
-}
-
-func (h *Handler) InitRoutes() *gin.Engine {
+func (h *Handler) InitRoutes(logger *slog.Logger) *gin.Engine {
 	router := gin.New()
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	router.RedirectTrailingSlash = false
 	router.RedirectFixedPath = false
+
+	router.Use(gin.Recovery())
+
+	router.Use(middleware.LoggingMiddleware(logger))
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*"},
@@ -39,29 +38,35 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		auth.POST("/sign-in", h.signIn)
 	}
 
-	api := router.Group("/api", h.userIdentity)
+	api := router.Group("/api")
+
+	api.Use(middleware.AuthMiddleware(h.services.Auth))
 	{
 		lists := api.Group("/lists")
 		{
 			lists.POST("", h.createList)
 			lists.GET("", h.getAllLists)
-			lists.GET("/:id", h.getListById)
-			lists.PUT("/:id", h.updateList)
-			lists.DELETE("/:id", h.deleteList)
 
-			items := lists.Group(":id/items")
+			listsByID := lists.Group("/:id")
 			{
-				items.POST("", h.createItem)
-				items.GET("", h.getAllItems)
+				listsByID.GET("", h.getListById)
+				listsByID.PUT("", h.updateList)
+				listsByID.DELETE("", h.deleteList)
+
+				items := listsByID.Group("/items")
+				{
+					items.POST("", h.createItem)
+					items.GET("", h.getAllItems)
+
+					itemsByID := items.Group("/:id")
+					{
+						itemsByID.GET("", h.getItemById)
+						itemsByID.PUT("", h.updateItem)
+						itemsByID.DELETE("", h.deleteItem)
+					}
+				}
 			}
 		}
-		items := api.Group("/items")
-		{
-			items.GET("/:id", h.getItemById)
-			items.PUT("/:id", h.updateItem)
-			items.DELETE("/:id", h.deleteItem)
-		}
 	}
-
 	return router
 }

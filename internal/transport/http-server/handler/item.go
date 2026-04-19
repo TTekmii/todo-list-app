@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/TTekmii/todo-list-app/internal/transport/http/dto"
+	"github.com/TTekmii/todo-list-app/internal/transport/http-server/dto"
 	"github.com/gin-gonic/gin"
 )
 
