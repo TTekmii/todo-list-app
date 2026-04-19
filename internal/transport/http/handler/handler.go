@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/TTekmii/todo-list-app/internal/app/auth"
@@ -16,6 +17,7 @@ type Service struct {
 
 type Handler struct {
 	services *Service
+	logger   *slog.Logger
 }
 
 func NewHandler(services *Service) *Handler {
