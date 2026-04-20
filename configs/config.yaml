@@ -14,3 +14,9 @@ logger:
 # logger:
 #   level: warn
 #   format: json
+
+jwt:
+  ttl: 12h
+
+bcrypt:
+  cost: 10

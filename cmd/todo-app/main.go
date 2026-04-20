@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -76,12 +77,29 @@ func main() {
 	listRepo := repository.NewTodoListPostgres(db)
 	itemRepo := repository.NewTodoItemPostgres(db)
 
-	jwtSecret := viper.GetString("jwt.secret")
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		jwtSecret = viper.GetString("jwt.secret")
+	}
+	if jwtSecret == "" {
+		log.Error("JWT secret is not configured")
+		os.Exit(1)
+	}
+
 	jwtTTL := viper.GetDuration("jwt.ttl")
+	if jwtTTL == 0 {
+		jwtTTL = 12 * time.Hour
+	}
+
 	bcryptCost := viper.GetInt("bcrypt.cost")
 	if bcryptCost == 0 {
 		bcryptCost = 10
 	}
+
+	log.Info("JWT config loaded",
+		slog.Duration("ttl", jwtTTL),
+		slog.Int("bcrypt_cost", bcryptCost),
+	)
 
 	authService := auth.NewService(authRepo, jwtSecret, jwtTTL, bcryptCost)
 	listService := todo.NewTodoListService(listRepo, log.With("component", "todo_list_service"))
@@ -130,8 +148,13 @@ func main() {
 func initConfig() error {
 	viper.AddConfigPath("configs")
 	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+
+	if err := viper.ReadInConfig(); err != nil {
+		return fmt.Errorf("fatal error config file: %w", err)
+	}
 
 	viper.AutomaticEnv()
 
-	return viper.ReadInConfig()
+	return nil
 }
