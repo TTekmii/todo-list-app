@@ -9,6 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const userContext = "userID"
+
 type Service struct {
 	Auth     *auth.Service
 	TodoList *todo.TodoListService
@@ -25,7 +27,7 @@ func NewHandler(services *Service) *Handler {
 }
 
 func getUserId(c *gin.Context) (int, error) {
-	userID, exists := c.Get("user_id")
+	userID, exists := c.Get(userContext)
 	if !exists {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
 		return 0, nil
