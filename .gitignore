@@ -27,5 +27,6 @@
 *.log
 
 # Файлы окружения
+*.env
 .env
 .env.local
