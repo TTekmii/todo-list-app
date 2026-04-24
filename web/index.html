@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ru" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App - Dark Mode</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            bg: '#0f172a', // slate-900
+                            card: '#1e293b', // slate-800
+                            border: '#334155', // slate-700
+                            text: '#f1f5f9', // slate-100
+                            muted: '#94a3b8' // slate-400
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Vue & Axios -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
+    <style>
+        /* Плавные переходы для смены темы */
+        body, div, input, button, h1, h2, h3, p, span {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-dark-bg dark:text-dark-text min-h-screen pb-20 font-sans">
+
+<div id="app" class="container mx-auto py-10 px-4 max-w-5xl relative">
+    
+    <!-- Кнопка переключения темы -->
+    <button @click="toggleTheme" class="fixed top-6 right-6 z-50 p-3 rounded-full bg-white dark:bg-dark-card shadow-lg border border-slate-200 dark:border-dark-border hover:scale-110 transition">
+        <span v-if="isDark">☀️</span>
+        <span v-else>🌙</span>
+    </button>
+
+    <!-- Экран авторизации -->
+    <div v-if="!token" class="max-w-md mx-auto bg-white dark:bg-dark-card p-8 rounded-3xl shadow-xl mt-16 border border-slate-200 dark:border-dark-border">
+        <h2 class="text-3xl font-black mb-6 text-center text-slate-800 dark:text-white">
+            {{ isLoginMode ? 'Вход' : 'Регистрация' }}
+        </h2>
+        <div class="space-y-4">
+            <div v-if="!isLoginMode">
+                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Имя</label>
+                <input v-model="auth.name" type="text" class="w-full p-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Username</label>
+                <input v-model="auth.username" type="text" class="w-full p-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition">
+            </div>
+            <div>
+                <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">Пароль</label>
+                <input v-model="auth.password" type="password" class="w-full p-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl outline-none focus:ring-2 focus:ring-blue-500 transition">
+            </div>
+            
+            <div v-if="errorMsg" class="p-3 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 text-sm rounded-xl border border-red-100 dark:border-red-800">
+                {{ errorMsg }}
+            </div>
+
+            <button @click="handleAuth" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition active:scale-95 shadow-lg shadow-blue-200 dark:shadow-none">
+                {{ isLoginMode ? 'Войти' : 'Создать аккаунт' }}
+            </button>
+            <p @click="toggleMode" class="text-center text-blue-500 cursor-pointer text-sm font-medium hover:underline mt-4">
+                {{ isLoginMode ? 'Нет аккаунта? Регистрация' : 'Уже есть аккаунт? Войти' }}
+            </p>
+        </div>
+    </div>
+
+    <!-- Экран со списками (Dashboard) -->
+    <div v-else-if="!selectedList">
+        <div class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-4xl font-black text-slate-900 dark:text-white">Мои Списки</h1>
+                <p class="text-slate-500 dark:text-dark-muted mt-1">Управляйте своими задачами эффективно</p>
+            </div>
+            <button @click="logout" class="text-red-500 font-bold px-4 py-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition">Выйти</button>
+        </div>
+
+        <div class="bg-white dark:bg-dark-card p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-dark-border mb-8">
+            <h3 class="font-bold mb-4 text-lg dark:text-white">Создать новый список</h3>
+            <div class="flex flex-col md:flex-row gap-3">
+                <input v-model="newList.title" placeholder="Название (обязательно)" class="flex-1 p-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                <input v-model="newList.description" placeholder="Описание" class="flex-1 p-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl focus:ring-2 focus:ring-blue-500 outline-none">
+                <button @click="createList" class="bg-slate-900 dark:bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-800 dark:hover:bg-blue-700 transition shadow-lg">Добавить</button>
+            </div>
+        </div>
+
+        <div v-if="lists.length === 0" class="text-center py-12 bg-white dark:bg-dark-card rounded-2xl border border-dashed border-slate-300 dark:border-dark-border">
+            <p class="text-slate-400 dark:text-dark-muted text-lg">У вас пока нет списков. Создайте первый!</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="list in lists" :key="list.id" class="bg-white dark:bg-dark-card p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-dark-border relative group hover:shadow-md transition">
+                <button @click="deleteList(list.id)" class="absolute top-4 right-4 text-slate-300 dark:text-slate-500 hover:text-red-500 transition">✕</button>
+                <h3 class="text-xl font-bold mb-2 text-slate-800 dark:text-white">{{ list.title }}</h3>
+                <p class="text-slate-500 dark:text-dark-muted text-sm mb-6 line-clamp-2">{{ list.description || 'Нет описания' }}</p>
+                <button @click="openList(list)" class="w-full py-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 rounded-xl font-bold hover:bg-blue-600 dark:hover:bg-blue-600 hover:text-white dark:hover:text-white transition">
+                    Открыть задачи
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Экран с задачами (Items) -->
+    <div v-else>
+        <button @click="closeList" class="mb-6 text-blue-600 dark:text-blue-400 font-bold flex items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 px-4 py-2 rounded-xl transition w-fit">
+            ← Назад к спискам
+        </button>
+        
+        <div class="bg-white dark:bg-dark-card p-8 rounded-3xl shadow-md border border-slate-200 dark:border-dark-border">
+            <div class="border-b border-slate-100 dark:border-slate-700 pb-6 mb-6">
+                <h2 class="text-3xl font-black mb-2 text-slate-900 dark:text-white">{{ selectedList.title }}</h2>
+                <p class="text-slate-500 dark:text-dark-muted">{{ selectedList.description }}</p>
+            </div>
+
+            <div class="flex gap-2 mb-8">
+                <input v-model="newItem.title" @keyup.enter="createItem" placeholder="Что нужно сделать?" class="flex-1 p-3 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white rounded-xl outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 transition">
+                <button @click="createItem" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-200 dark:shadow-none">+</button>
+            </div>
+
+            <div class="space-y-3">
+                <div v-for="item in items" :key="item.id" class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-700 group hover:border-blue-200 dark:hover:border-blue-800 transition">
+                    <div class="flex items-center gap-3 flex-1">
+                        <input type="checkbox" :checked="item.done" class="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 cursor-pointer" @change="toggleItem(item)">
+                        <span :class="{'line-through text-slate-400 dark:text-slate-500': item.done, 'text-slate-700 dark:text-slate-200': !item.done}" class="font-medium transition">{{ item.title }}</span>
+                    </div>
+                    <button @click="deleteItem(item.id)" class="text-slate-300 dark:text-slate-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition px-2">Удалить</button>
+                </div>
+                <div v-if="!items.length" class="text-center py-10 text-slate-400 dark:text-dark-muted italic">В этом списке пока нет задач. Добавьте первую!</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const { createApp, ref, onMounted } = Vue;
+
+    createApp({
+        setup() {
+            const API_URL = 'http://localhost:8000'; 
+            
+            const isDark = ref(false);
+            
+            const token = ref(localStorage.getItem('token'));
+            const isLoginMode = ref(true);
+            const errorMsg = ref('');
+            
+            const lists = ref([]);
+            const items = ref([]);
+            const selectedList = ref(null);
+            
+            const auth = ref({ name: '', username: '', password: '' });
+            const newList = ref({ title: '', description: '' });
+            const newItem = ref({ title: '' });
+
+            const initTheme = () => {
+                if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                    isDark.value = true;
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    isDark.value = false;
+                }
+            };
+
+            const toggleTheme = () => {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.theme = 'light';
+                    isDark.value = false;
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.theme = 'dark';
+                    isDark.value = true;
+                }
+            };
+
+            const getClient = () => axios.create({
+                baseURL: API_URL,
+                headers: { 
+                    'Authorization': `Bearer ${token.value}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            // --- Логика Списков ---
+            const fetchLists = async () => {
+                try {
+                    const res = await getClient().get('/api/lists');
+                    lists.value = res.data.data || [];
+                } catch (e) { 
+                    console.error(e); 
+                    if(e.response?.status === 401) logout();
+                }
+            };
+
+            const createList = async () => {
+                if (!newList.value.title.trim()) return;
+                errorMsg.value = '';
+                try {
+                    await getClient().post('/api/lists', newList.value);
+                    newList.value = { title: '', description: '' };
+                    fetchLists();
+                } catch (e) { 
+                    errorMsg.value = e.response?.data?.message || "Ошибка создания списка"; 
+                }
+            };
+
+            const deleteList = async (id) => {
+                if (!confirm("Вы уверены, что хотите удалить этот список и все задачи в нем?")) return;
+                try {
+                    await getClient().delete(`/api/lists/${id}`);
+                    fetchLists();
+                } catch (e) { alert("Ошибка удаления"); }
+            };
+
+            // --- Логика Задач (Items) ---
+            const openList = async (list) => {
+                selectedList.value = list;
+                newItem.value.title = '';
+                try {
+                    const res = await getClient().get(`/api/lists/${list.id}/items?t=${Date.now()}`);
+                    items.value = res.data || [];
+                } catch (e) { 
+                    console.error(e);
+                    alert("Ошибка загрузки задач"); 
+                }
+            };
+
+            const closeList = () => {
+                selectedList.value = null;
+                items.value = [];
+            };
+
+            const createItem = async () => {
+                if (!newItem.value.title.trim()) return;
+                try {
+                    await getClient().post(`/api/lists/${selectedList.value.id}/items`, {
+                        title: newItem.value.title,
+                        description: "" 
+                    });
+                    newItem.value.title = '';
+                    openList(selectedList.value);
+                } catch (e) { 
+                    console.error(e);
+                    alert("Ошибка создания задачи"); 
+                }
+            };
+
+            const deleteItem = async (itemId) => {
+                if (!confirm("Удалить задачу?")) return;
+                
+                try {
+                    await getClient().delete(`/api/lists/${selectedList.value.id}/items/${itemId}`);
+                    
+                    items.value = items.value.filter(item => item.id !== itemId);    
+                } catch (e) { 
+                    console.error(e);
+                    alert("Не удалось удалить");
+                }
+            };
+
+            const toggleItem = async (item) => {
+                try {
+                    await getClient().put(`/api/lists/${selectedList.value.id}/items/${item.id}`, {
+                        done: !item.done,
+                        title: item.title,
+                        description: item.description
+                    });
+                    item.done = !item.done; 
+                } catch (e) {
+                    console.error("Ошибка обновления статуса:", e);
+                    alert("Не удалось изменить статус задачи");
+                }
+            };
+
+            // --- Авторизация ---
+            const toggleMode = () => {
+                isLoginMode.value = !isLoginMode.value;
+                errorMsg.value = '';
+                auth.value = { name: '', username: '', password: '' };
+            };
+
+            const handleAuth = async () => {
+                errorMsg.value = '';
+                try {
+                    const path = isLoginMode.value ? '/auth/sign-in' : '/auth/sign-up';
+                    
+                    const payload = isLoginMode.value 
+                        ? { username: auth.value.username, password: auth.value.password }
+                        : { name: auth.value.name, username: auth.value.username, password: auth.value.password };
+
+                    const res = await axios.post(`${API_URL}${path}`, payload);
+                    
+                    if (isLoginMode.value) {
+                        token.value = res.data.token;
+                        localStorage.setItem('token', token.value);
+                        fetchLists();
+                    } else {
+                        alert("Аккаунт создан! Теперь войдите.");
+                        isLoginMode.value = true;
+                    }
+                } catch (e) { 
+                    errorMsg.value = e.response?.data?.message || "Ошибка сети или неверные данные"; 
+                }
+            };
+
+            const logout = () => {
+                token.value = null;
+                localStorage.removeItem('token');
+                selectedList.value = null;
+                lists.value = [];
+                auth.value = { name: '', username: '', password: '' };
+            };
+
+            onMounted(() => { 
+                initTheme();
+                if (token.value) fetchLists(); 
+            });
+
+            return { 
+                isDark, toggleTheme,
+                token, isLoginMode, errorMsg, auth, lists, items, selectedList, 
+                newList, newItem, 
+                toggleMode, handleAuth, logout, 
+                createList, deleteList, openList, closeList, createItem, deleteItem, toggleItem
+            };
+        }
+    }).mount('#app');
+</script>
+</body>
+</html>
