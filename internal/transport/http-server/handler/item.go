@@ -71,7 +71,7 @@ func (h *Handler) getItemById(c *gin.Context) {
 		return
 	}
 
-	itemID, err := strconv.Atoi(c.Param("id"))
+	itemID, err := strconv.Atoi(c.Param("itemID"))
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "invalid list id param")
 		return
@@ -92,7 +92,7 @@ func (h *Handler) updateItem(c *gin.Context) {
 		return
 	}
 
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Param("itemID"))
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "invalid id param")
 		return
@@ -118,7 +118,7 @@ func (h *Handler) deleteItem(c *gin.Context) {
 		return
 	}
 
-	itemID, err := strconv.Atoi(c.Param("id"))
+	itemID, err := strconv.Atoi(c.Param("itemID"))
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "invalid list id param")
 		return

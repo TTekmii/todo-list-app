@@ -58,7 +58,7 @@ func (h *Handler) InitRoutes(logger *slog.Logger) *gin.Engine {
 					items.POST("", h.createItem)
 					items.GET("", h.getAllItems)
 
-					itemsByID := items.Group("/:id")
+					itemsByID := items.Group("/:itemID")
 					{
 						itemsByID.GET("", h.getItemById)
 						itemsByID.PUT("", h.updateItem)
