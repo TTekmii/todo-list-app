@@ -73,7 +73,7 @@ func (h *Handler) getItemById(c *gin.Context) {
 
 	itemID, err := strconv.Atoi(c.Param("itemID"))
 	if err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "invalid list id param")
+		newErrorResponse(c, http.StatusBadRequest, "invalid item id param")
 		return
 	}
 
