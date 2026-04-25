@@ -1,0 +1,28 @@
+{
+  "FixedFileInfo": {
+    "FileVersion": {
+      "Major": 0,
+      "Minor": 1,
+      "Patch": 0,
+      "Build": 0
+    },
+    "ProductVersion": {
+      "Major": 0,
+      "Minor": 1,
+      "Patch": 0,
+      "Build": 0
+    }
+  },
+  "StringFileInfo": {
+    "CompanyName": "TTekmii",
+    "FileDescription": "Todo List API Server",
+    "FileVersion": "v0.1.0",
+    "InternalName": "todo-app",
+    "LegalCopyright": "MIT License",
+    "OriginalFilename": "todo-app.exe",
+    "ProductName": "Todo List App",
+    "ProductVersion": "v0.1.0"
+  },
+  "IconPath": "app.ico",
+  "ManifestPath": ""
+}
