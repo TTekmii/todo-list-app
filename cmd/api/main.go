@@ -1,5 +1,25 @@
 package main
 
+// @title           Todo List API
+// @version         0.1.0
+// @description     This is a sample Todo List server using Gin and Clean Architecture.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@swagger.io
+
+// @license.name  MIT
+// @license.url   https://opensource.org/licenses/MIT
+
+// @host      localhost:8000
+// @BasePath  /
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
+
 import (
 	"context"
 	"fmt"
@@ -22,17 +42,6 @@ import (
 	transportServer "github.com/TTekmii/todo-list-app/internal/transport/http-server"
 	"github.com/TTekmii/todo-list-app/internal/transport/http-server/handler"
 )
-
-// @title Todo App API
-// @version 1.0
-// @description API Server for TodoList Application
-
-// @host localhost:8000
-// @BasePath /
-
-// @securityDefinitions.apikey ApiKeyAuth
-// @in header
-// @name Authorization
 
 func main() {
 	if err := godotenv.Load(); err != nil {
