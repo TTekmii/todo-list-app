@@ -1,32 +1,35 @@
-# Бинарные файлы
+# Binary files
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
 
-# Файлы сборки
+# Build files
 /bin/
 /pkg/
 /dist/
 
-# Кэш модулей
+# Module cache
 /go.mod.cache
 
-# Тестовые файлы
+# Test files
 *.test
 *.out
 
-# IDE файлы
+# IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Логи
+# logs
 *.log
 
-# Файлы окружения
+# Environment files
 *.env
 .env
 .env.local
+
+# Generated resources for Windows icons
+*.syso
