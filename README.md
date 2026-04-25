@@ -135,6 +135,23 @@ go run cmd/api/main.go
 
 The API will start on `http://localhost:8000`.
 
+## 📦 Building for Windows
+
+To build the application with a custom icon and version information on Windows:
+
+#### 1. Ensure you have `goversioninfo` installed:
+ ```bash
+ go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo@latest
+```
+
+#### 2. Run the build command using Make:
+
+```bash
+make build-windows
+```
+
+This will generate `todo-app.exe` with the application icon and metadata embedded.
+
 ## 📖 API Documentation
 
 Once the server is running, interactive Swagger documentation is available at:
