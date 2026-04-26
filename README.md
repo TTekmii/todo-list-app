@@ -99,12 +99,12 @@ LOG_FORMAT=pretty    # Use 'json' for production
 APP_ENV=development
 ```
 
-> For `JWT_SECRET` generation run this command in the Linux, Mac or Git Bash terminal:
+> *For `JWT_SECRET` generation run this command in the Linux, Mac or Git Bash terminal:*
 
 ```bash
 openssl rand -base64 48
 ```
->...or in PowerShell:
+>*...or in PowerShell:*
 
 ```powershell
 $bytes = New-Object Byte[] 48
@@ -180,6 +180,23 @@ A simple, responsive single-page application is included in the `web/` directory
 **4.** Use the toggle button in the top-right corner to switch between Dark and Light modes.
 
 > ***Note:*** *Since this is a static HTML file, no build process or Node.js server is required for the frontend. It communicates directly with the Go API via Axios.*
+
+## 🛑 Stopping the Application
+
+#### 1. Stop the Go Server
+If you are running the API in a terminal (`go run ...` or `./todo-app.exe`):
+- Press **`Ctrl + C`** in the terminal window.
+- The server will perform a **Graceful Shutdown**, completing active requests and closing connections safely.
+
+#### 2. Stop the Database
+The PostgreSQL database runs in a Docker container and continues to run even after the server is stopped. To shut it down and free up system resources:
+
+```bash
+docker-compose down
+```
+
+>***Note:*** *Avoid killing the process forcefully (e.g., closing the terminal window directly) as it may interrupt active database transactions.*
+>***Tip:*** *You can also use `docker-compose stop` if you plan to start working again soon (this pauses the containers without removing them).* 
 
 ## 📄 License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
